@@ -145,6 +145,60 @@ int runBm3d(const int sigma, const Mat image_noisy, Mat& image_basic, Mat& image
 	}
 	image_basic = numerator_hd / denominator_hd;
 
+	//step 2 guide filtering
+	//vector<Mat> block_basic;
+	//row_idx.clear();
+	//col_idx.clear();
+
+	//GetAllBlock(image_basic, Width, Height, Channels, kHard, pHard, block_basic, row_idx, col_idx);
+	//bn_r = row_idx.size();
+	//bn_c = col_idx.size();
+
+	//vector<Mat> data_noisy;
+	//float weight_tv_guided = 1.0;//weights used for current relevent patch
+	//Mat denominator_tv_guided(image_noisy.size(), CV_32FC1, Scalar::all(0));
+	//Mat numerator_tv_guided(image_noisy.size(), CV_32FC1, Scalar::all(0));
+	//for (int i = 0; i < bn_r; i++)
+	//{
+	//	for (int j = 0; j < bn_c; j++)
+	//	{
+	//		//for each pack in the basic estimate
+	//		sim_num.clear();
+	//		sim_idx_row.clear();
+	//		sim_idx_col.clear();
+	//		data.clear();
+	//		data_noisy.clear();
+
+	//		getSimilarPatch(block_basic, data, sim_num, i, j, bn_r, bn_c,
+	//			int((nWien - kWien) / pWien) + 1, NWien, tao_wien);//block matching
+
+	//		for (int k = 0; k < sim_num.size(); k++)//calculate idx in the left-top corner
+	//		{
+	//			sim_idx_row.push_back(row_idx[sim_num[k] / bn_c]);
+	//			sim_idx_col.push_back(col_idx[sim_num[k] % bn_c]);
+	//			data_noisy.push_back(image_noisy(Rect(sim_idx_col[k], sim_idx_row[k], kWien, kWien)));
+	//		}
+
+	//		tran2d(data, kWien);
+	//		tran2d(data_noisy, kWien);
+	//		tran1d(data, kWien);
+	//		tran1d(data_noisy, kWien);
+
+	//		// Perform TV-guided filtering on noisy patches
+	//		for (int k = 0; k < data_noisy.size(); k++)
+	//		{
+	//			cv::Mat filtered_patch = tvGuidedFilter(data_noisy[k], data[k], kWien, 255, -5);
+	//			data_noisy[k] = filtered_patch;
+	//		}
+	//		Inver3Dtrans(data_noisy, kWien);
+
+	//		// Aggregation step
+	//		aggregation(numerator_tv_guided, denominator_tv_guided,
+	//			sim_idx_row, sim_idx_col, data_noisy, weight_tv_guided, kWien, kaiser);
+	//	}
+	//}
+	//image_denoised = numerator_tv_guided / denominator_tv_guided;
+
 	//step 2 wiena filtering
 	vector<Mat> block_basic;
 	row_idx.clear();
@@ -195,7 +249,6 @@ int runBm3d(const int sigma, const Mat image_noisy, Mat& image_basic, Mat& image
 		}
 	}
 	image_denoised = numerator_wien / denominator_wien;
-
 	return EXIT_SUCCESS;
 }
 
@@ -314,8 +367,8 @@ float cal_distance(Mat a, Mat b)
 		const float* M2 = b.ptr<float>(i);
 		for (int j = 0; j < sx; j++)
 		{
-			sum += (M1[j] - M2[j]) * (M1[j] - M2[j]);  // Å·¼¸ÀïµÃ¾àÀë
-			//sum += std::abs(M1[j] - M2[j]);   // Âü¹þ¶Ù¾àÀë
+			//sum += (M1[j] - M2[j]) * (M1[j] - M2[j]);  // Å·¼¸ÀïµÃ¾àÀë
+			sum += std::abs(M1[j] - M2[j]);   // Âü¹þ¶Ù¾àÀë
 		}
 	}
 	return sum / (sy * sx);
@@ -518,5 +571,60 @@ void wienFiltering(vector<Mat>& input, const vector<Mat>wien, int patchSize)
 	for (int k = 0; k < input.size(); k++)
 	{
 		input[k] = input[k].mul(wien[k]);
+	}
+}
+
+cv::Mat tvGuidedFilter(const cv::Mat &noisy_patch, const cv::Mat &guided_patch, int patch_size, float sigma, float lambda)
+{
+	// Convert patches to float type
+	cv::Mat I, p;
+	noisy_patch.convertTo(I, CV_32F);
+	guided_patch.convertTo(p, CV_32F);
+
+	Mat mean_I, var_I;
+	mean_I = boxfilter(I, patch_size);
+	Mat mean_II = boxfilter(I.mul(I), patch_size);
+	var_I = mean_II - mean_I.mul(mean_I);
+
+	// Mean calculations
+	cv::Mat mean_p = boxfilter(p, patch_size);
+	cv::Mat mean_Ip = boxfilter(I.mul(p), patch_size);
+	cv::Mat cov_Ip = mean_Ip - mean_I.mul(mean_p);
+
+	// Gradient calculations for TV regularization
+	cv::Mat grad_Ix, grad_Iy;
+	cv::Sobel(I, grad_Ix, CV_32F, 1, 0, 3);
+	cv::Sobel(I, grad_Iy, CV_32F, 0, 1, 3);
+	cv::Mat grad_I = cv::abs(grad_Ix) + cv::abs(grad_Iy);
+
+	// TV regularization term
+	cv::Mat TV = grad_I;
+
+	// Calculate a and b with TV regularization
+	cv::Mat a = cov_Ip / (var_I + sigma * sigma + lambda * TV);
+	cv::Mat b = mean_p - a.mul(mean_I);
+
+	// Mean of a and b
+	cv::Mat mean_a = boxfilter(a, patch_size);
+	cv::Mat mean_b = boxfilter(b, patch_size);
+
+	// Output the filtered patch
+	return mean_a.mul(I) + mean_b;
+}
+
+Mat boxfilter(const cv::Mat &I, int r)
+{
+	cv::Mat result;
+	cv::blur(I, result, cv::Size(r, r), cv::Point(-1, -1), cv::BORDER_REPLICATE);
+	return result;
+}
+
+// Function for inverse 2D DCT transform
+void Inver2Dtrans(vector<Mat>& data, int blockSize)
+{
+	for (size_t i = 0; i < data.size(); i++)
+	{
+		// Perform inverse DCT (IDCT) on each block
+		idct(data[i], data[i]);
 	}
 }

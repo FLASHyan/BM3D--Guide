@@ -44,3 +44,6 @@ void wienFiltering(vector<Mat>&input, const vector<Mat>wien, int patchSize);
 Mat gen_kaiser(int beta, int length);
 void wavedec(float *input, int length);
 void waverec(float* input, int length, int N);
+Mat tvGuidedFilter(const cv::Mat &noisy_patch, const cv::Mat &guided_patch, int patch_size, float sigma, float lambda);
+Mat boxfilter(const cv::Mat &I, int r);
+void Inver2Dtrans(vector<Mat>& data, int blockSize);
