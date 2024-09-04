@@ -1,3 +1,4 @@
+ï»¿#pragma execution_character_set("utf-8")
 #include <iostream>
 #include <opencv2\highgui\highgui.hpp>
 #include <opencv2\opencv.hpp>
@@ -12,7 +13,7 @@ using namespace std;
 
 int main()
 {
-	//psnr²âÊÔ
+	//psnræµ‹è¯•
 	//Mat src = imread("picture/500t_bm3d_v.bmp", 0);
 	//Mat src1 = imread("picture/50t_v_guide2.bmp", 0);
 	//Mat src2 = imread("picture/50t_v_guide.bmp", 0);
@@ -28,7 +29,7 @@ int main()
 	//cout << "psnr for basic estimate:" << cal_psnr(Src, Src1) << endl;
 	//cout << "psnr for basic estimate:" << cal_psnr(Src, Src2) << endl;
 
-	/*****************µ¼ÏòÂË²¨**********************/
+	/*****************å¯¼å‘æ»¤æ³¢**********************/
 	//Mat p = src;
 	//int r = 8; // try r=2, 4, or 8
 	//double eps = 0.2 * 0.2; // try eps=0.1^2, 0.2^2, 0.4^2
@@ -37,7 +38,7 @@ int main()
 	//Mat q = guidedFilter(src, p, r, eps);
 	//imwrite("picture/test_guide1.bmp", q);
 
-	/*******************×ªBFI**********************/
+	/*******************è½¬BFI**********************/
 	//Mat v_lsci_img(src.rows, src.cols, CV_64FC1, Scalar(0));
 	//Mat t_mat(src.rows, src.cols, CV_64FC1, Scalar(0));
 	//src.convertTo(t_mat, CV_64FC1);
@@ -66,7 +67,7 @@ int main()
 	//}
 	//Mat v_lsci_img_new(dst.rows, dst.cols, CV_8UC1, Scalar(0));
 	//Mat v_lsci_img_new_reverse(dst.rows, dst.cols, CV_8UC1, Scalar(0));
-	////changeWindows(v_lsci_img, v_lsci_img_new, 500,300);								//µ÷Õû´°¿í´°Î»
+	////changeWindows(v_lsci_img, v_lsci_img_new, 500,300);								//è°ƒæ•´çª—å®½çª—ä½
 	//changeWindows3(v_lsci_img, v_lsci_img_new, 160, 50);
 	//imwrite("picture/denoised3_1.bmp", v_lsci_img_new);
 
