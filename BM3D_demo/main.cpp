@@ -12,7 +12,7 @@ using namespace std;
 
 int main()
 {
-	// psnr测试
+	//psnr测试
 	//Mat src = imread("picture/500t_bm3d_v.bmp", 0);
 	//Mat src1 = imread("picture/50t_v_guide2.bmp", 0);
 	//Mat src2 = imread("picture/50t_v_guide.bmp", 0);
@@ -28,7 +28,7 @@ int main()
 	//cout << "psnr for basic estimate:" << cal_psnr(Src, Src1) << endl;
 	//cout << "psnr for basic estimate:" << cal_psnr(Src, Src2) << endl;
 
-	/*****************  导向滤波 **********************/
+	/*****************导向滤波**********************/
 	//Mat p = src;
 	//int r = 8; // try r=2, 4, or 8
 	//double eps = 0.2 * 0.2; // try eps=0.1^2, 0.2^2, 0.4^2
@@ -37,7 +37,7 @@ int main()
 	//Mat q = guidedFilter(src, p, r, eps);
 	//imwrite("picture/test_guide1.bmp", q);
 
-	/******************* 转BFI **********************/
+	/*******************转BFI**********************/
 	//Mat v_lsci_img(src.rows, src.cols, CV_64FC1, Scalar(0));
 	//Mat t_mat(src.rows, src.cols, CV_64FC1, Scalar(0));
 	//src.convertTo(t_mat, CV_64FC1);
