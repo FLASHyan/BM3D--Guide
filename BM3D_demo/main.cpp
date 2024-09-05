@@ -34,7 +34,7 @@ int main()
 	/*                 微分同胚demons配准                */
 	//Mat out(src.size(), CV_32FC1);
 	//Mat sx;
-	//Mat	sy;
+	//Mat sy;
 	//demons.register_diffeomorphic_demons(src, src1, 1.15, 0.05, 0.05, 200, out, sx, sy);
 	//imwrite("picture/denoised2-2_pei1.bmp", out);
 
