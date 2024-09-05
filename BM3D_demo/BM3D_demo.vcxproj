@@ -20,12 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BM3D.cpp" />
+    <ClCompile Include="Demons.cpp" />
     <ClCompile Include="guidedfilter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Newton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bm3d.h" />
+    <ClInclude Include="Demons.h" />
     <ClInclude Include="guidedfilter.h" />
     <ClInclude Include="Newton.h" />
   </ItemGroup>

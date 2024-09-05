@@ -27,6 +27,9 @@
     <ClCompile Include="guidedfilter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Demons.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bm3d.h">
@@ -36,6 +39,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="guidedfilter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Demons.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,15 +8,17 @@
 #include "bm3d.h"
 #include "Newton.h"
 #include "guidedfilter.h"
+#include "Demons.h"
 using namespace cv;
 using namespace std;
+Demons demons;
 
 int main()
 {
 	//psnr测试
 	//Mat src = imread("picture/500t_bm3d_v.bmp", 0);
-	//Mat src1 = imread("picture/50t_v_guide2.bmp", 0);
-	//Mat src2 = imread("picture/50t_v_guide.bmp", 0);
+	//Mat src1 = imread("picture/denoised2-2_pei1.bmp", 0);
+	//Mat src2 = imread("picture/50t_v_pei_bm3d.bmp", 0);
 
 	//Mat Src(src.size(), CV_32FC1);
 	//Mat Src1(src.size(), CV_32FC1);
@@ -27,7 +29,14 @@ int main()
 	//uchar2float(src2, Src2);
 
 	//cout << "psnr for basic estimate:" << cal_psnr(Src, Src1) << endl;
-	//cout << "psnr for basic estimate:" << cal_psnr(Src, Src2) << endl;
+	//cout << "psnr for finnal estimate:" << cal_psnr(Src, Src2) << endl;
+
+	/*                 微分同胚demons配准                */
+	//Mat out(src.size(), CV_32FC1);
+	//Mat sx;
+	//Mat	sy;
+	//demons.register_diffeomorphic_demons(src, src1, 1.15, 0.05, 0.05, 200, out, sx, sy);
+	//imwrite("picture/denoised2-2_pei1.bmp", out);
 
 	/*****************导向滤波**********************/
 	//Mat p = src;
@@ -92,7 +101,7 @@ int main()
 	//convert type for displaying
 	Mat basic(pic.size(), CV_8U);
 	Mat noisy(pic.size(), CV_8U);
-	noisy = imread("picture/50t_v.bmp", 0);
+	noisy = imread("picture/50t_v_pei.bmp", 0);
 	uchar2float(noisy, Noisy);
 	Mat denoised(pic.size(), CV_8U);
 	//float2uchar(Noisy, noisy);
@@ -115,7 +124,7 @@ int main()
 	namedWindow("basic", 1);
 	imshow("basic", basic);
 	imshow("denoised", denoised);
-	imwrite("picture/denoised2-3.bmp", denoised);
+	imwrite("picture/50t_v_pei_bm3d.bmp", denoised);
 	cv::waitKey(0);
 
 	return 0;
