@@ -11,3 +11,6 @@ double findRoot_Newton(double kk, double x0);
 void manualNormalize(const Mat& src, Mat& dst, double minVal, double maxVal);
 void changeWindows3(cv::Mat& src, cv::Mat& dst, double WW, double WL);
 double log_k(double x);
+void normalizeAndConvertTo8U(cv::Mat& src, cv::Mat& dst);
+uint8_t mapTo8Bit(double value);
+Mat convertImageTo8Bit(const cv::Mat& image64);

@@ -146,60 +146,6 @@ int runBm3d(const int sigma, const Mat image_noisy, Mat& image_basic, Mat& image
 	image_basic = numerator_hd / denominator_hd;
 
 	//step 2 guide filtering
-	//vector<Mat> block_basic;
-	//row_idx.clear();
-	//col_idx.clear();
-
-	//GetAllBlock(image_basic, Width, Height, Channels, kHard, pHard, block_basic, row_idx, col_idx);
-	//bn_r = row_idx.size();
-	//bn_c = col_idx.size();
-
-	//vector<Mat> data_noisy;
-	//float weight_tv_guided = 1.0;//weights used for current relevent patch
-	//Mat denominator_tv_guided(image_noisy.size(), CV_32FC1, Scalar::all(0));
-	//Mat numerator_tv_guided(image_noisy.size(), CV_32FC1, Scalar::all(0));
-	//for (int i = 0; i < bn_r; i++)
-	//{
-	//	for (int j = 0; j < bn_c; j++)
-	//	{
-	//		//for each pack in the basic estimate
-	//		sim_num.clear();
-	//		sim_idx_row.clear();
-	//		sim_idx_col.clear();
-	//		data.clear();
-	//		data_noisy.clear();
-
-	//		getSimilarPatch(block_basic, data, sim_num, i, j, bn_r, bn_c,
-	//			int((nWien - kWien) / pWien) + 1, NWien, tao_wien);//block matching
-
-	//		for (int k = 0; k < sim_num.size(); k++)//calculate idx in the left-top corner
-	//		{
-	//			sim_idx_row.push_back(row_idx[sim_num[k] / bn_c]);
-	//			sim_idx_col.push_back(col_idx[sim_num[k] % bn_c]);
-	//			data_noisy.push_back(image_noisy(Rect(sim_idx_col[k], sim_idx_row[k], kWien, kWien)));
-	//		}
-
-	//		tran2d(data, kWien);
-	//		tran2d(data_noisy, kWien);
-	//		tran1d(data, kWien);
-	//		tran1d(data_noisy, kWien);
-
-	//		// Perform TV-guided filtering on noisy patches
-	//		for (int k = 0; k < data_noisy.size(); k++)
-	//		{
-	//			cv::Mat filtered_patch = tvGuidedFilter(data_noisy[k], data[k], kWien, 255, -5);
-	//			data_noisy[k] = filtered_patch;
-	//		}
-	//		Inver3Dtrans(data_noisy, kWien);
-
-	//		// Aggregation step
-	//		aggregation(numerator_tv_guided, denominator_tv_guided,
-	//			sim_idx_row, sim_idx_col, data_noisy, weight_tv_guided, kWien, kaiser);
-	//	}
-	//}
-	//image_denoised = numerator_tv_guided / denominator_tv_guided;
-
-	//step 2 wiena filtering
 	vector<Mat> block_basic;
 	row_idx.clear();
 	col_idx.clear();
@@ -209,9 +155,9 @@ int runBm3d(const int sigma, const Mat image_noisy, Mat& image_basic, Mat& image
 	bn_c = col_idx.size();
 
 	vector<Mat> data_noisy;
-	float weight_wien = 1.0;//weights used for current relevent patch
-	Mat denominator_wien(image_noisy.size(), CV_32FC1, Scalar::all(0));
-	Mat numerator_wien(image_noisy.size(), CV_32FC1, Scalar::all(0));
+	float weight_tv_guided = 1.0;//weights used for current relevent patch
+	Mat denominator_tv_guided(image_noisy.size(), CV_32FC1, Scalar::all(0));
+	Mat numerator_tv_guided(image_noisy.size(), CV_32FC1, Scalar::all(0));
 	for (int i = 0; i < bn_r; i++)
 	{
 		for (int j = 0; j < bn_c; j++)
@@ -238,17 +184,71 @@ int runBm3d(const int sigma, const Mat image_noisy, Mat& image_basic, Mat& image
 			tran1d(data, kWien);
 			tran1d(data_noisy, kWien);
 
-			gen_wienFilter(data, sigma);
-			weight_wien = calculate_weight_wien(data, sigma);
-			wienFiltering(data_noisy, data, kWien);
-
+			// Perform TV-guided filtering on noisy patches
+			for (int k = 0; k < data_noisy.size(); k++)
+			{
+				cv::Mat filtered_patch = tvGuidedFilter(data_noisy[k], data[k], kWien, 255, -5);
+				data_noisy[k] = filtered_patch;
+			}
 			Inver3Dtrans(data_noisy, kWien);
 
-			aggregation(numerator_wien, denominator_wien,
-				sim_idx_row, sim_idx_col, data_noisy, weight_wien, kWien, kaiser);
+			// Aggregation step
+			aggregation(numerator_tv_guided, denominator_tv_guided,
+				sim_idx_row, sim_idx_col, data_noisy, weight_tv_guided, kWien, kaiser);
 		}
 	}
-	image_denoised = numerator_wien / denominator_wien;
+	image_denoised = numerator_tv_guided / denominator_tv_guided;
+
+	//step 2 wiena filtering
+	//vector<Mat> block_basic;
+	//row_idx.clear();
+	//col_idx.clear();
+
+	//GetAllBlock(image_basic, Width, Height, Channels, kHard, pHard, block_basic, row_idx, col_idx);
+	//bn_r = row_idx.size();
+	//bn_c = col_idx.size();
+
+	//vector<Mat> data_noisy;
+	//float weight_wien = 1.0;//weights used for current relevent patch
+	//Mat denominator_wien(image_noisy.size(), CV_32FC1, Scalar::all(0));
+	//Mat numerator_wien(image_noisy.size(), CV_32FC1, Scalar::all(0));
+	//for (int i = 0; i < bn_r; i++)
+	//{
+	//	for (int j = 0; j < bn_c; j++)
+	//	{
+	//		//for each pack in the basic estimate
+	//		sim_num.clear();
+	//		sim_idx_row.clear();
+	//		sim_idx_col.clear();
+	//		data.clear();
+	//		data_noisy.clear();
+
+	//		getSimilarPatch(block_basic, data, sim_num, i, j, bn_r, bn_c,
+	//			int((nWien - kWien) / pWien) + 1, NWien, tao_wien);//block matching
+
+	//		for (int k = 0; k < sim_num.size(); k++)//calculate idx in the left-top corner
+	//		{
+	//			sim_idx_row.push_back(row_idx[sim_num[k] / bn_c]);
+	//			sim_idx_col.push_back(col_idx[sim_num[k] % bn_c]);
+	//			data_noisy.push_back(image_noisy(Rect(sim_idx_col[k], sim_idx_row[k], kWien, kWien)));
+	//		}
+
+	//		tran2d(data, kWien);
+	//		tran2d(data_noisy, kWien);
+	//		tran1d(data, kWien);
+	//		tran1d(data_noisy, kWien);
+
+	//		gen_wienFilter(data, sigma);
+	//		weight_wien = calculate_weight_wien(data, sigma);
+	//		wienFiltering(data_noisy, data, kWien);
+
+	//		Inver3Dtrans(data_noisy, kWien);
+
+	//		aggregation(numerator_wien, denominator_wien,
+	//			sim_idx_row, sim_idx_col, data_noisy, weight_wien, kWien, kaiser);
+	//	}
+	//}
+	//image_denoised = numerator_wien / denominator_wien;
 	return EXIT_SUCCESS;
 }
 

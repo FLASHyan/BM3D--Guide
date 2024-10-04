@@ -1,5 +1,5 @@
 #include"Newton.h"
-
+#include <omp.h>
 double y = 0.95;
 double t = 0.6;
 
@@ -61,4 +61,37 @@ void changeWindows3(cv::Mat& src, cv::Mat& dst, double WW, double WL)
 double log_k(double x)
 { // 求解以1.1为底的对数值
 	return log(x) / log(1.1);
+}
+
+void normalizeAndConvertTo8U(cv::Mat& src, cv::Mat& dst) {
+	// 计算最小值和最大值
+	double minVal, maxVal;
+	cv::minMaxLoc(src, &minVal, &maxVal);
+
+	// 检查最小值是否为负值，如果有负值，进行偏移
+	if (minVal < 0) {
+		src -= minVal;  // 把最小值移动到0
+		maxVal -= minVal;  // 相应调整最大值
+		minVal = 0;  // 最小值现在为0
+	}
+
+	// 缩放并将浮点图像转换为8位图像
+	src.convertTo(dst, CV_8U, 255.0 / maxVal);  // 按最大值缩放
+}
+
+uint8_t mapTo8Bit(double value) {
+	double normalizedValue = value + 100; // 移动范围到 0 到 400
+	return static_cast<uint8_t>((normalizedValue / 200.0) * 255); // 映射到 0 到 255
+}
+
+cv::Mat convertImageTo8Bit(const cv::Mat& image64) {
+	cv::Mat image8bit(image64.size(), CV_8UC1); // 创建8位单通道图像
+#pragma omp parallel for
+	for (int y = 0; y < image64.rows; ++y) {
+		for (int x = 0; x < image64.cols; ++x) {
+			image8bit.at<uint8_t>(y, x) = mapTo8Bit(image64.at<double>(y, x));
+		}
+	}
+
+	return image8bit;
 }

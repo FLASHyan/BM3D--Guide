@@ -22,6 +22,7 @@
     <ClCompile Include="BM3D.cpp" />
     <ClCompile Include="Demons.cpp" />
     <ClCompile Include="guidedfilter.cpp" />
+    <ClCompile Include="Hemoglobin.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Newton.cpp" />
   </ItemGroup>
@@ -29,6 +30,7 @@
     <ClInclude Include="bm3d.h" />
     <ClInclude Include="Demons.h" />
     <ClInclude Include="guidedfilter.h" />
+    <ClInclude Include="Hemoglobin.h" />
     <ClInclude Include="Newton.h" />
   </ItemGroup>
   <ItemGroup>
@@ -102,8 +104,9 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <ConformanceMode>true</ConformanceMode>
+      <ConformanceMode>false</ConformanceMode>
       <AdditionalIncludeDirectories>D:\opencv\build\install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
